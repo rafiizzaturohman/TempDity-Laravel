@@ -1,0 +1,10 @@
+{
+    "plugins": ["prettier-plugin-blade"],
+    "tabWidth": 4,
+    "semi": false,
+    "singleQuote": true,
+    "bladeFormatter": {
+        "wrapLineLength": 120,
+        "wrapAttributes": "auto"
+    }
+}
