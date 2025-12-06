@@ -5,12 +5,14 @@
 #include <DHT_U.h>
 #include <LiquidCrystal_I2C.h>
 #include <ArduinoJson.h>
+#include <Servo.h>
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
+Servo jendela;
 
 // KONFIGURASI WIFI
-const char* ssid = "SIB BLOK E3 NO 14";
-const char* password = "3783140504Okay";
+const char* ssid = "izzat";
+const char* password = "satuduadelapan";
 
 #define DHTPIN D4
 #define DHTTYPE DHT22
@@ -76,6 +78,7 @@ void setup() {
   pinMode(LED_PIN_2, OUTPUT);
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LED_PROCESS_PIN, OUTPUT);
+  jendela.attach(15);
 
   digitalWrite(LED_PROCESS_PIN, LOW);
 
@@ -168,7 +171,7 @@ void loop() {
       WiFiClient client;
       HTTPClient http1;
 
-      String url = "http://192.168.1.7/DHT22-main/public/update-data/";
+      String url = "http://10.249.72.204/TempDity-Laravel/public/update-data/";
       url += String(temperature, 1) + "/" + String(humidity, 1);
 
       // -----------------------------
@@ -211,6 +214,15 @@ void loop() {
         float minTempVal = data["min_temperature"].as<float>();
         float minHumVal = data["min_humidity"].as<float>();
 
+        
+        if (tempVal >= maxTempVal) {
+          jendela.write(180);
+        } else if (tempVal <= minTempVal) {
+          jendela.write(0);
+        } else {
+          jendela.write(45);
+        }
+
         if (tempVal > maxTempVal) {
           blinkInterval = 150;
           beepInterval = 150;
@@ -250,7 +262,7 @@ void checkReadRequest() {
         WiFiClient client;
         HTTPClient http;
         
-        String url = "http://192.168.1.7/DHT22-main/public/check-read-request";
+        String url = "http://10.249.72.204/TempDity-Laravel/public/check-read-request";
         
         http.begin(client, url);
         int httpCode = http.GET();
@@ -330,7 +342,7 @@ bool sendSensorDataManual() {
         WiFiClient client;
         HTTPClient http1;
 
-        String url = "http://192.168.1.7/DHT22-main/public/update-data/";
+        String url = "http://10.249.72.204/TempDity-Laravel/public/update-data/";
         url += String(temperature, 1) + "/" + String(humidity, 1);
 
         http1.begin(client, url);
