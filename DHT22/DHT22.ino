@@ -8,25 +8,31 @@
 #include <Servo.h>
 
 LiquidCrystal_I2C lcd(0x27, 20, 4);
-Servo jendela;
+Servo servo;
 
 // KONFIGURASI WIFI
-const char* ssid = "izzat";
-const char* password = "satuduadelapan";
+const char* ssid = "SIB BLOK E3 NO 14";
+const char* password = "3783140504Okay";
+
+// const char* ssid = "Hotspot";
+// const char* password = "1234567890";
+
+// const char* ssid = "izzat";
+// const char* password = "satuduadelapan";
 
 #define DHTPIN D4
 #define DHTTYPE DHT22
-#define LED_PIN_1 D5
-#define LED_PIN_2 D6
+#define LED_PIN_1 D5  // LED indikator Temperature
+#define LED_PIN_2 D6  // LED indikator Humidity
 #define BUZZER_PIN D3
 #define LED_PROCESS_PIN D7  // LED indikator proses
+#define SERVO_PIN D8
 
 DHT_Unified dht(DHTPIN, DHTTYPE);
 
 float temperature = 0.0;
 float humidity = 0.0;
 
-// TIMER
 unsigned long lastDHT = 0;
 unsigned long dhtInterval = 3000;
 
@@ -78,7 +84,7 @@ void setup() {
   pinMode(LED_PIN_2, OUTPUT);
   pinMode(BUZZER_PIN, OUTPUT);
   pinMode(LED_PROCESS_PIN, OUTPUT);
-  jendela.attach(15);
+  servo.attach(SERVO_PIN);
 
   digitalWrite(LED_PROCESS_PIN, LOW);
 
@@ -88,7 +94,6 @@ void setup() {
 void loop() {
   unsigned long now = millis();
 
-  // POLLING UNTUK CEK READ REQUEST
   if (now - lastPoll >= pollInterval) {
     lastPoll = now;
     checkReadRequest();
@@ -171,7 +176,7 @@ void loop() {
       WiFiClient client;
       HTTPClient http1;
 
-      String url = "http://10.249.72.204/TempDity-Laravel/public/update-data/";
+      String url = "http://192.168.1.10/DHT22-main/public/update-data/";
       url += String(temperature, 1) + "/" + String(humidity, 1);
 
       // -----------------------------
@@ -216,11 +221,11 @@ void loop() {
 
         
         if (tempVal >= maxTempVal) {
-          jendela.write(180);
+          servo.write(180);
         } else if (tempVal <= minTempVal) {
-          jendela.write(0);
+          servo.write(0);
         } else {
-          jendela.write(45);
+          servo.write(45);
         }
 
         if (tempVal > maxTempVal) {
@@ -262,7 +267,7 @@ void checkReadRequest() {
         WiFiClient client;
         HTTPClient http;
         
-        String url = "http://10.249.72.204/TempDity-Laravel/public/check-read-request";
+        String url = "http://192.168.1.10/DHT22-main/public/check-read-request";
         
         http.begin(client, url);
         int httpCode = http.GET();
@@ -342,7 +347,7 @@ bool sendSensorDataManual() {
         WiFiClient client;
         HTTPClient http1;
 
-        String url = "http://10.249.72.204/TempDity-Laravel/public/update-data/";
+        String url = "http://192.168.1.10/DHT22-main/public/update-data/";
         url += String(temperature, 1) + "/" + String(humidity, 1);
 
         http1.begin(client, url);
