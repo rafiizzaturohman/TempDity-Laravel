@@ -1,59 +1,265 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🌡️ Temperature & Humidity Monitoring with Auto Window System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Monitoring Suhu & Kelembapan Realtime Menggunakan **DHT22**, **ESP8266**, **Laravel**, **Blade**, **MySQL**, dan **Servo Motor** untuk membuka jendela otomatis.
 
-## About Laravel
+Aplikasi ini adalah sistem monitoring suhu (°C) dan kelembapan (%) secara realtime menggunakan sensor **DHT22**. Data dikirim melalui mikrokontroler (ESP8266) menuju **backend Laravel**, disimpan ke database **MySQL**, dan ditampilkan pada dashboard berbasis **Blade**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Sistem ini dilengkapi **servo otomatis** yang membuka jendela ketika suhu melebihi batas maksimal, serta fitur **manual log retrieval** melalui tombol di dashboard.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+---
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🚀 Fitur Utama
 
-## Learning Laravel
+### 🟦 Backend (Laravel)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- REST API untuk menerima data suhu & kelembapan
+- Penyimpanan data ke MySQL
+- Log history temperatur & kelembapan
+- Pengaturan batas maksimal suhu (threshold)
+- Kontrol servo otomatis berdasarkan ambang batas
+- Endpoint untuk mengambil data log secara manual (export)
+- MVC Laravel + Route + Controller + Middleware
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+**Endpoint Utama:**
 
-## Laravel Sponsors
+- `POST /public/update-data` → menerima data dari mikrokontroler
+- `GET /public/get-data` → mengambil data terbaru (untuk frontend)
+- `GET /public/get-logs` → mengambil data logs dari mikrokontroler
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+---
 
-### Premium Partners
+### 🟧 Frontend (Laravel Blade)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- Dashboard realtime
+- Card suhu & kelembapan
+- Grafik perubahan data
+- Auto-refresh data
+- Tombol update logs (mengambil logs secara manual)
+- UI responsive & ringan
 
-## Contributing
+---
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 🔧 Hardware
 
-## Code of Conduct
+- Sensor **DHT22**
+- ESP8266 / ESP32
+- Servo motor (SG90)
+- Mekanisme jendela otomatis
+- Pengiriman data via HTTP POST
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+---
 
-## Security Vulnerabilities
+## 📁 Struktur Project
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```
+/project-root
+│
+├── app/
+│ ├── Http/
+│ ├── Models/
+│ └── ...
+│
+├── resources/
+│ └── views/   # Blade UI
+│
+├── public/
+├── database/
+├── routes/
+│ └── api.php
+│
+└── ...
+```
 
-## License
+---
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# ⚙️ Instalasi & Menjalankan Proyek
+
+## 1. Clone Repository
+
+```bash
+git clone https://github.com/username/tempdity-laravel-monitoring.git
+cd tempdity-laravel-monitoring
+```
+
+---
+
+# 🟦 Backend (Laravel)
+
+## Instalasi
+
+```bash
+composer install
+cp .env.example .env
+```
+
+Atur koneksi database MySQL:
+
+```
+DB_DATABASE=iot_monitoring
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+Generate key:
+
+```bash
+php artisan key:generate
+```
+
+Migrasi database:
+
+```bash
+php artisan migrate
+```
+
+## Menjalankan Server
+
+```bash
+php artisan serve
+```
+
+Backend berjalan di:
+
+```
+http://localhost:8000
+```
+
+---
+
+# 📡 Endpoint API
+
+### **POST /public/update-data/{tmp}/{hmd}**
+
+Digunakan mikrokontroler untuk mengirim data baru.
+
+**Payload:**
+
+```json
+{
+    "temperature": 29.4,
+    "humidity": 72.1,
+    "max_temperature": 30,
+    "min_temperature": 21,
+    "max_humidity": 60,
+    "min_humidity": 40
+}
+```
+
+**Fitur otomatis:**
+
+- Jika suhu > max_temperature → `servo = buka_jendela`
+- Jika normal → `servo = buka_setengah_jendela`
+- Jika suhu < min_temperature `servo = tutup_jendela`
+
+---
+
+### **GET /api/sensor/get-data**
+
+Mengambil data sensor terbaru untuk dashboard.
+
+**Contoh response:**
+
+```json
+{
+    "temperature": 28.9,
+    "humidity": 67.4,
+    "time": "2025-11-20T14:00:00Z"
+}
+```
+
+---
+
+# 🟧 Frontend (Blade)
+
+Menjalankan frontend bawaan Laravel:
+
+```bash
+php artisan serve
+```
+
+Akses dashboard:
+
+```
+http://localhost:8000/
+```
+
+**Fitur Dashboard:**
+
+- Realtime temperature & humidity
+- Grafik perubahan data
+- Status servo (OPEN / CLOSE)
+- Tombol update logs (Mengambil log secara manual)
+- Auto-refresh API
+
+---
+
+# 🔌 Contoh Kode ESP8266 / ESP32
+
+```cpp
+#include <ESP8266WiFi.h>
+#include <ESP8266HTTPClient.h>
+#include <DHT.h>
+
+#define DHTPIN 2
+#define DHTTYPE DHT22
+
+DHT dht(DHTPIN, DHTTYPE);
+
+void setup() {
+  Serial.begin(115200);
+  WiFi.begin("WiFi-Name", "WiFi-Password");
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  dht.begin();
+}
+
+void loop() {
+  float temperature = dht.readTemperature();
+  float humidity = dht.readHumidity();
+
+  if (!isnan(temperature) && !isnan(humidity)) {
+
+    WiFiClient client;
+    HTTPClient http;
+
+    http.begin(client, "http://YOUR_SERVER_IP/api/sensor/update");
+    http.addHeader("Content-Type", "application/json");
+
+    String json = "{\"temperature\":" + String(temperature,1) +
+                  ",\"humidity\":" + String(humidity,1) + "}";
+
+    int httpCode = http.POST(json);
+
+    Serial.printf("HTTP Code: %d\n", httpCode);
+    Serial.println(http.getString());
+
+    http.end();
+  }
+
+  delay(3000);
+}
+```
+
+---
+
+# 📐 Arsitektur Sistem
+
+```
+[DHT22] → [ESP8266/ESP32] → [Laravel Backend + MySQL]
+                         ↓
+                [Servo Otomatis] ← suhu melebihi batas
+                         ↓
+              [Dashboard Laravel Blade]
+```
+
+---
+
+# 📄 Lisensi
+
+Proyek ini menggunakan lisensi **MIT**.
+
+---
