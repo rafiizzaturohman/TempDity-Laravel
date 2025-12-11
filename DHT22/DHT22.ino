@@ -64,7 +64,7 @@ bool isReadingSensor = false;
 
 // DEKLARASI FUNGSI
 void checkReadRequest();
-void servoPositioning();
+// void servoPositioning();
 bool readDHT22Immediately();
 bool sendSensorDataManual();
 
@@ -222,6 +222,8 @@ void loop() {
         float maxHumVal = data["max_humidity"].as<float>();
         float minTempVal = data["min_temperature"].as<float>();
         float minHumVal = data["min_humidity"].as<float>();
+
+        servoPositioning();
 
         if (tempVal > maxTempVal) {
           blinkInterval = 150;
