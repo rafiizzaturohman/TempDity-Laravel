@@ -180,7 +180,7 @@ void loop() {
       WiFiClient client;
       HTTPClient http1;
 
-      String url = "http://10.108.138.11/DHT22-main/public/update-data/";
+      String url = "http://192.168.1.10/DHT22-main/public/update-data/";
       url += String(temperature, 1) + "/" + String(humidity, 1);
 
       // -----------------------------
@@ -224,6 +224,17 @@ void loop() {
         float minHumVal = data["min_humidity"].as<float>();
 
         if (tempVal > maxTempVal) {
+            Serial.print("Jendela terbuka");
+            servo.write(180);
+        } else if (tempVal < minTempVal) {
+            Serial.print("Jendela tertutup");
+            servo.write(90);
+        } else {
+            Serial.print("Jendela setengah terbuka");
+            servo.write(135);
+        }
+
+        if (tempVal > maxTempVal) {
           blinkInterval = 150;
           beepInterval = 150;
         } else if (tempVal < minTempVal) {
@@ -256,58 +267,13 @@ void loop() {
   }
 }
 
-// FUNGSI UNTUK PEMOSISIAN SERVO
-void servoPositioning() {
-  if (WiFi.status() == WL_CONNECTED && !isReadingSensor) {
-        WiFiClient client;
-        HTTPClient http;
-        
-        String url = "http://10.108.138.11/DHT22-main/public/update-data/";
-        
-        http.begin(client, url);
-        int httpCode = http.GET();
-
-        if (httpCode > 0) {
-            String payload = http.getString();
-            
-            StaticJsonDocument<128> doc;
-            DeserializationError error = deserializeJson(doc, payload);
-
-            JsonObject data = doc["data"];
-            
-            int id = data["id"];
-            float tempVal = data["temperature"].as<float>();
-            float maxTempVal = data["max_temperature"].as<float>();
-            float minTempVal = data["min_temperature"].as<float>();
-            
-            if (tempVal > maxTempVal) {
-                Serial.print("Jendela terbuka");
-                servo.write(90);
-            } else if (tempVal < minTempVal) {
-                Serial.print("Jendela tertutup");
-                servo.write(0);
-            } else {
-                Serial.print("Jendela setengah terbuka");
-                servo.write(45);
-            }
-        } else {
-          Serial.print("❌ Failed to get data");
-          Serial.printf("❌ Gagal terkoneksi. Error: %s\n", http.errorToString(httpCode).c_str());
-        }
-
-        http.end();
-
-        Serial.print("\n");
-  }
-}
-
 // FUNGSI CHECK READ REQUEST
 void checkReadRequest() {
     if (WiFi.status() == WL_CONNECTED && !isReadingSensor) {
         WiFiClient client;
         HTTPClient http;
         
-        String url = "http://10.108.138.11/DHT22-main/public/check-read-request";
+        String url = "http://192.168.1.10/DHT22-main/public/check-read-request";
         
         http.begin(client, url);
         int httpCode = http.GET();
@@ -387,7 +353,7 @@ bool sendSensorDataManual() {
         WiFiClient client;
         HTTPClient http1;
 
-        String url = "http://10.108.138.11/DHT22-main/public/update-data/";
+        String url = "http://192.168.1.10/DHT22-main/public/update-data/";
         url += String(temperature, 1) + "/" + String(humidity, 1);
 
         http1.begin(client, url);
