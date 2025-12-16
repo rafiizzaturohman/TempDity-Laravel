@@ -29,7 +29,7 @@ const char* password = "3783140504Okay";
 #define LED_PIN_2 D6  // LED indikator Humidity
 #define BUZZER_PIN D3
 #define LED_PROCESS_PIN D8  // LED indikator proses
-#define SERVO_PIN D7
+#define SERVO_PIN 3
 
 DHT_Unified dht(DHTPIN, DHTTYPE);
 
@@ -64,7 +64,6 @@ bool isReadingSensor = false;
 
 // DEKLARASI FUNGSI
 void checkReadRequest();
-void servoPositioning();
 bool readDHT22Immediately();
 bool sendSensorDataManual();
 
@@ -98,34 +97,6 @@ void setup() {
 void loop() {
   unsigned long now = millis();
 
-  if (now - lastPoll >= pollInterval) {
-    lastPoll = now;
-    checkReadRequest();
-  }
-
-  if (now - lastDHT >= dhtInterval && !isReadingSensor) {
-    lastDHT = now;
-
-    sensors_event_t event;
-    dht.temperature().getEvent(&event);
-    temperature = event.temperature;
-
-    dht.humidity().getEvent(&event);
-    humidity = event.relative_humidity;
-
-    if (isnan(temperature) || isnan(humidity)) {
-      Serial.println("Undetected DHT");
-    } else {
-      Serial.print("Temperature: "); 
-      Serial.print(temperature); 
-      Serial.println("°C"); 
-
-      Serial.print("Humidity: "); 
-      Serial.print(humidity); 
-      Serial.println("%");
-    }
-  }
-
   if (blinkInterval > 0 && (now - lastBlink >= blinkInterval)) {
     lastBlink = now;
     ledState = !ledState;
@@ -144,9 +115,28 @@ void loop() {
     digitalWrite(BUZZER_PIN, buzzerState);
   }
 
+  if (now - lastPoll >= pollInterval) {
+    lastPoll = now;
+    checkReadRequest();
+  }
+
+  if (now - lastDHT >= dhtInterval && !isReadingSensor) {
+    lastDHT = now;
+    serialPrint();
+  }
+
   if (now - lastUpdate >= lcdInterval) {
     lastUpdate = now;
+    lcdPrint();
+  }
 
+  if (now - lastSend >= sendInterval && !isReadingSensor) {
+    lastSend = now;
+    dataSend();
+  }
+}
+
+void lcdPrint() {
     lcd.clear();
 
     if (!isnan(temperature) && !isnan(humidity)) {
@@ -171,16 +161,35 @@ void loop() {
       lcd.setCursor(0, 0);
       lcd.print("Undetected DHT");
     }
-  }
+}
 
-  if (now - lastSend >= sendInterval && !isReadingSensor) {
-    lastSend = now;
+void serialPrint() {
+    sensors_event_t event;
+    dht.temperature().getEvent(&event);
+    temperature = event.temperature;
 
+    dht.humidity().getEvent(&event);
+    humidity = event.relative_humidity;
+
+    if (isnan(temperature) || isnan(humidity)) {
+      Serial.println("Undetected DHT");
+    } else {
+      Serial.print("Temperature: "); 
+      Serial.print(temperature); 
+      Serial.println("°C"); 
+
+      Serial.print("Humidity: "); 
+      Serial.print(humidity); 
+      Serial.println("%");
+    }
+}
+
+void dataSend() {
     if (WiFi.status() == WL_CONNECTED) {
       WiFiClient client;
       HTTPClient http1;
 
-      String url = "http://192.168.1.10/DHT22-main/public/update-data/";
+      String url = "http://192.168.1.10/TempDity-Laravel/public/update-data/";
       url += String(temperature, 1) + "/" + String(humidity, 1);
 
       // -----------------------------
@@ -264,7 +273,6 @@ void loop() {
 
       Serial.print("\n");
     }
-  }
 }
 
 // FUNGSI CHECK READ REQUEST
@@ -273,7 +281,7 @@ void checkReadRequest() {
         WiFiClient client;
         HTTPClient http;
         
-        String url = "http://192.168.1.10/DHT22-main/public/check-read-request";
+        String url = "http://192.168.1.10/TempDity-Laravel/public/check-read-request";
         
         http.begin(client, url);
         int httpCode = http.GET();
@@ -353,7 +361,7 @@ bool sendSensorDataManual() {
         WiFiClient client;
         HTTPClient http1;
 
-        String url = "http://192.168.1.10/DHT22-main/public/update-data/";
+        String url = "http://192.168.1.10/TempDity-Laravel/public/update-data/";
         url += String(temperature, 1) + "/" + String(humidity, 1);
 
         http1.begin(client, url);
