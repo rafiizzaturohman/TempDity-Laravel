@@ -11,8 +11,11 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 Servo servo;
 
 // KONFIGURASI WIFI
-const char* ssid = "SIB BLOK E3 NO 14";
-const char* password = "3783140504Okay";
+const char* ssid = "smpqinthara";
+const char* password = "100%qinthara";
+
+// const char* ssid = "SIB BLOK E3 NO 14";
+// const char* password = "3783140504Okay";
 
 // const char* ssid = "vivo Y21";
 // const char* password = "123456788";
@@ -25,10 +28,12 @@ const char* password = "3783140504Okay";
 
 #define DHTPIN D4
 #define DHTTYPE DHT22
-#define LED_PIN_1 D5  // LED indikator Temperature
-#define LED_PIN_2 D6  // LED indikator Humidity
+#define LED_PIN_1 D5  
+#define LED_PIN_2 D6  
+#define LED_PIN_3 D7  
+#define LED_PIN_4 D8  
+#define LED_PIN_5 D0  
 #define BUZZER_PIN D3
-#define LED_PROCESS_PIN D8  // LED indikator proses
 #define SERVO_PIN 3
 
 DHT_Unified dht(DHTPIN, DHTTYPE);
@@ -48,11 +53,14 @@ unsigned long sendInterval = 3000;
 unsigned long lastPoll = 0;
 unsigned long pollInterval = 2000;  // Poll setiap 2 detik
 
-unsigned long lastBlink = 0;
-unsigned long blinkInterval = 0;
+unsigned long lastDevicePoll = 0;
+unsigned long devicePollInterval = 2000; 
 
-unsigned long lastBlink2 = 0;
-unsigned long blinkInterval2 = 0;
+// unsigned long lastBlink = 0;
+// unsigned long blinkInterval = 0;
+
+// unsigned long lastBlink2 = 0;
+// unsigned long blinkInterval2 = 0;
 
 unsigned long lastBeep = 0;
 unsigned long beepInterval = 0;
@@ -64,6 +72,9 @@ bool isReadingSensor = false;
 
 // DEKLARASI FUNGSI
 void checkReadRequest();
+void fetchDeviceStatus();
+void applyDevice(uint8_t id, bool status);
+
 bool readDHT22Immediately();
 bool sendSensorDataManual();
 
@@ -85,11 +96,13 @@ void setup() {
 
   pinMode(LED_PIN_1, OUTPUT);
   pinMode(LED_PIN_2, OUTPUT);
+  pinMode(LED_PIN_3, OUTPUT);
+  pinMode(LED_PIN_4, OUTPUT);
+  pinMode(LED_PIN_5, OUTPUT);
   pinMode(BUZZER_PIN, OUTPUT);
-  pinMode(LED_PROCESS_PIN, OUTPUT);
   servo.attach(SERVO_PIN);
 
-  digitalWrite(LED_PROCESS_PIN, LOW);
+  // digitalWrite(LED_PROCESS_PIN, LOW);
 
   dht.begin();
 }
@@ -97,17 +110,17 @@ void setup() {
 void loop() {
   unsigned long now = millis();
 
-  if (blinkInterval > 0 && (now - lastBlink >= blinkInterval)) {
-    lastBlink = now;
-    ledState = !ledState;
-    digitalWrite(LED_PIN_1, ledState);
-  }
+  // if (blinkInterval > 0 && (now - lastBlink >= blinkInterval)) {
+  //   lastBlink = now;
+  //   ledState = !ledState;
+  //   digitalWrite(LED_PIN_1, ledState);
+  // }
 
-  if (blinkInterval2 > 0 && (now - lastBlink2 >= blinkInterval2)) {
-    lastBlink2 = now;
-    ledState2 = !ledState2;
-    digitalWrite(LED_PIN_2, ledState2);
-  }
+  // if (blinkInterval2 > 0 && (now - lastBlink2 >= blinkInterval2)) {
+  //   lastBlink2 = now;
+  //   ledState2 = !ledState2;
+  //   digitalWrite(LED_PIN_2, ledState2);
+  // }
 
   if (beepInterval > 0 && (now - lastBeep >= beepInterval)) {
     lastBeep = now;
@@ -118,6 +131,11 @@ void loop() {
   if (now - lastPoll >= pollInterval) {
     lastPoll = now;
     checkReadRequest();
+  }
+
+  if (now - lastDevicePoll >= devicePollInterval) {
+    lastDevicePoll = now;
+    fetchDeviceStatus();
   }
 
   if (now - lastDHT >= dhtInterval && !isReadingSensor) {
@@ -135,6 +153,66 @@ void loop() {
     dataSend();
   }
 }
+
+void fetchDeviceStatus() {
+  if (WiFi.status() != WL_CONNECTED) return;
+
+  WiFiClient client;
+  HTTPClient http;
+
+  String url = "http://192.168.18.216/TempDity-Laravel/public/devices/status";
+  http.begin(client, url);
+
+  int httpCode = http.GET();
+
+  if (httpCode > 0) {
+    String payload = http.getString();
+
+    StaticJsonDocument<512> doc;
+    DeserializationError error = deserializeJson(doc, payload);
+
+    if (!error) {
+      for (JsonObject device : doc.as<JsonArray>()) {
+        uint8_t id = device["id"];
+        bool status = device["status"];
+        applyDevice(id, status);
+      }
+    } else {
+      Serial.print("❌ JSON device error: ");
+      Serial.println(error.f_str());
+    }
+  } else {
+    Serial.print("❌ Device API error: ");
+    Serial.println(http.errorToString(httpCode));
+  }
+
+  http.end();
+}
+
+void applyDevice(uint8_t id, bool status) {
+  switch (id) {
+    case 1:
+      digitalWrite(LED_PIN_1, status);
+      break;
+
+    case 2:
+      digitalWrite(LED_PIN_2, status);
+      break;
+
+    case 3:
+      digitalWrite(LED_PIN_3, status);
+      break;
+
+    case 4:
+      digitalWrite(LED_PIN_4, status);
+      break;
+
+    case 5:
+      digitalWrite(LED_PIN_5, status);
+      break;
+  }
+}
+
 
 void lcdPrint() {
     lcd.clear();
@@ -189,7 +267,7 @@ void dataSend() {
       WiFiClient client;
       HTTPClient http1;
 
-      String url = "http://192.168.1.10/TempDity-Laravel/public/update-data/";
+      String url = "http://192.168.18.216/TempDity-Laravel/public/update-data/";
       url += String(temperature, 1) + "/" + String(humidity, 1);
 
       // -----------------------------
@@ -243,29 +321,30 @@ void dataSend() {
             servo.write(135);
         }
 
-        if (tempVal > maxTempVal) {
-          blinkInterval = 150;
-          beepInterval = 150;
-        } else if (tempVal < minTempVal) {
-          blinkInterval = 300;
-          beepInterval = 300;
-        } else {
-          blinkInterval = 0;
-          beepInterval = 0;
-          digitalWrite(LED_PIN_1, LOW);
-          digitalWrite(BUZZER_PIN, LOW);
-        }
+          if (tempVal > maxTempVal) {
+            // blinkInterval = 150;
+            beepInterval = 150;
+          } else if (tempVal < minTempVal) {
+            // blinkInterval = 300;
+            beepInterval = 300;
+          } else {
+            // blinkInterval = 0;
+            beepInterval = 0;
+            // digitalWrite(LED_PIN_1, LOW);
+            digitalWrite(BUZZER_PIN, LOW);
+          }
 
-        if (humVal > maxHumVal) {
-          blinkInterval2 = 150;
-          beepInterval = 150;
-        } else if (humVal < minHumVal) {
-          blinkInterval2 = 300;
-          beepInterval = 300;
-        } else {
-          blinkInterval2 = 0;
-          digitalWrite(LED_PIN_2, LOW);
-        }
+          if (humVal > maxHumVal) {
+            // blinkInterval2 = 150;
+            beepInterval = 150;
+          } else if (humVal < minHumVal) {
+            // blinkInterval2 = 300;
+            beepInterval = 300;
+          } else {
+            // blinkInterval2 = 0;
+            // digitalWrite(LED_PIN_2, LOW);
+            digitalWrite(BUZZER_PIN, LOW);
+          }
       } else {
         Serial.printf("Gagal mengirim data ke API 1. Error: %s\n", http1.errorToString(httpCode1).c_str());
       }
@@ -275,13 +354,13 @@ void dataSend() {
     }
 }
 
-// FUNGSI CHECK READ REQUEST
-void checkReadRequest() {
+// 
+void checkLEDRequest() {
     if (WiFi.status() == WL_CONNECTED && !isReadingSensor) {
         WiFiClient client;
         HTTPClient http;
         
-        String url = "http://192.168.1.10/TempDity-Laravel/public/check-read-request";
+        String url = "http://192.168.18.216/TempDity-Laravel/public/check-read-request";
         
         http.begin(client, url);
         int httpCode = http.GET();
@@ -297,7 +376,7 @@ void checkReadRequest() {
                 
                 if (readRequest) {
                     isReadingSensor = true;
-                    digitalWrite(LED_PROCESS_PIN, HIGH);
+                    // digitalWrite(LED_PROCESS_PIN, HIGH);
                     Serial.println("🟡 READ REQUEST: Memulai pembacaan sensor manual...");
                     
                     if(readDHT22Immediately()) {
@@ -312,7 +391,62 @@ void checkReadRequest() {
                         Serial.println("❌ READ REQUEST: Gagal membaca sensor");
                     }
                     
-                    digitalWrite(LED_PROCESS_PIN, LOW);
+                    // digitalWrite(LED_PROCESS_PIN, LOW);
+                    isReadingSensor = false;
+                    Serial.println("🔵 READ REQUEST: Proses selesai");
+                }
+            } else {
+                Serial.print("❌ Error parsing read request: ");
+                Serial.println(error.f_str());
+            }
+        } else {
+            Serial.printf("❌ Gagal polling read request. Error: %s\n", http.errorToString(httpCode).c_str());
+        }
+        
+        http.end();
+
+	      Serial.print("\n");
+    }
+}
+
+// FUNGSI CHECK READ REQUEST
+void checkReadRequest() {
+    if (WiFi.status() == WL_CONNECTED && !isReadingSensor) {
+        WiFiClient client;
+        HTTPClient http;
+        
+        String url = "http://192.168.18.216/TempDity-Laravel/public/check-read-request";
+        
+        http.begin(client, url);
+        int httpCode = http.GET();
+        
+        if (httpCode > 0) {
+            String payload = http.getString();
+            
+            StaticJsonDocument<128> doc;
+            DeserializationError error = deserializeJson(doc, payload);
+            
+            if (!error) {
+                bool readRequest = doc["read_request"];
+                
+                if (readRequest) {
+                    isReadingSensor = true;
+                    // digitalWrite(LED_PROCESS_PIN, HIGH);
+                    Serial.println("🟡 READ REQUEST: Memulai pembacaan sensor manual...");
+                    
+                    if(readDHT22Immediately()) {
+                        Serial.println("📊 BACA MANUAL - Sensor berhasil dibaca");
+                        
+                        if(sendSensorDataManual()) {
+                            Serial.println("🟢 READ REQUEST: Data berhasil dikirim ke server");
+                        } else {
+                            Serial.println("❌ READ REQUEST: Gagal mengirim data ke server");
+                        }
+                    } else {
+                        Serial.println("❌ READ REQUEST: Gagal membaca sensor");
+                    }
+                    
+                    // digitalWrite(LED_PROCESS_PIN, LOW);
                     isReadingSensor = false;
                     Serial.println("🔵 READ REQUEST: Proses selesai");
                 }
@@ -361,7 +495,7 @@ bool sendSensorDataManual() {
         WiFiClient client;
         HTTPClient http1;
 
-        String url = "http://192.168.1.10/TempDity-Laravel/public/update-data/";
+        String url = "http://192.168.18.216/TempDity-Laravel/public/update-data/";
         url += String(temperature, 1) + "/" + String(humidity, 1);
 
         http1.begin(client, url);
