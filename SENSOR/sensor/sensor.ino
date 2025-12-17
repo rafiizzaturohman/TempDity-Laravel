@@ -213,7 +213,6 @@ void applyDevice(uint8_t id, bool status) {
   }
 }
 
-
 void lcdPrint() {
     lcd.clear();
 
@@ -321,30 +320,30 @@ void dataSend() {
             servo.write(135);
         }
 
-          if (tempVal > maxTempVal) {
-            // blinkInterval = 150;
-            beepInterval = 150;
-          } else if (tempVal < minTempVal) {
-            // blinkInterval = 300;
-            beepInterval = 300;
-          } else {
-            // blinkInterval = 0;
-            beepInterval = 0;
-            // digitalWrite(LED_PIN_1, LOW);
-            digitalWrite(BUZZER_PIN, LOW);
-          }
+        if (tempVal > maxTempVal) {
+        // blinkInterval = 150;
+        beepInterval = 150;
+        } else if (tempVal < minTempVal) {
+        // blinkInterval = 300;
+        beepInterval = 300;
+        } else {
+        // blinkInterval = 0;
+        beepInterval = 0;
+        // digitalWrite(LED_PIN_1, LOW);
+        digitalWrite(BUZZER_PIN, LOW);
+        }
 
-          if (humVal > maxHumVal) {
-            // blinkInterval2 = 150;
-            beepInterval = 150;
-          } else if (humVal < minHumVal) {
-            // blinkInterval2 = 300;
-            beepInterval = 300;
-          } else {
-            // blinkInterval2 = 0;
-            // digitalWrite(LED_PIN_2, LOW);
-            digitalWrite(BUZZER_PIN, LOW);
-          }
+        if (humVal > maxHumVal) {
+          // blinkInterval2 = 150;
+          beepInterval = 150;
+        } else if (humVal < minHumVal) {
+          // blinkInterval2 = 300;
+          beepInterval = 300;
+        } else {
+          // blinkInterval2 = 0;
+          // digitalWrite(LED_PIN_2, LOW);
+          digitalWrite(BUZZER_PIN, LOW);
+        }
       } else {
         Serial.printf("Gagal mengirim data ke API 1. Error: %s\n", http1.errorToString(httpCode1).c_str());
       }
