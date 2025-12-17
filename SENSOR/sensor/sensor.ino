@@ -218,22 +218,15 @@ void lcdPrint() {
 
     if (!isnan(temperature) && !isnan(humidity)) {
       lcd.setCursor(0, 0);
-      lcd.print("Temp:");
+      lcd.print("Temp: ");
       lcd.print(temperature, 1);
       lcd.print((char)223);
       lcd.print("C");
 
       lcd.setCursor(0, 1);
-      lcd.print("Humi:");
+      lcd.print("Humi: ");
       lcd.print(humidity, 1);
       lcd.print("%");
-
-      lcd.setCursor(0, 2);
-      if (isReadingSensor) {
-        lcd.print("PROSES MANUAL...");
-      } else {
-        lcd.print("SIAP");
-      }
     } else {
       lcd.setCursor(0, 0);
       lcd.print("Undetected DHT");
