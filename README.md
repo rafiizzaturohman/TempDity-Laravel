@@ -6,13 +6,22 @@ Aplikasi ini adalah sistem monitoring suhu (°C) dan kelembapan (%) secara realt
 
 Sistem ini dilengkapi **servo otomatis** yang membuka jendela ketika suhu melebihi batas maksimal, serta fitur **manual log retrieval** melalui tombol di dashboard.
 
+Selain **servo otomatis dan manual log** ada tambahan fitur yang mana fitur ini berupa sebuah tombol yang dapat mengubah status pada suatu objek atau perangkat elektronik (On/Off atau Open/Closed).
+
 ---
+
+## 🎯 Tujuan Fitur Kontrol Wireless
+
+- Menyalakan / mematikan LED indikator dari jarak jauh
+- Memberikan indikator visual status sistem
+- Kontrol manual tanpa mengganggu sistem otomatis
+- Dasar pengembangan perangkat IoT lain (relay, buzzer, dll)
 
 ## 🚀 Fitur Utama
 
 ### 🟦 Backend (Laravel)
 
-- REST API untuk menerima data suhu & kelembapan
+- REST API untuk menerima data suhu & kelembapan dan status
 - Penyimpanan data ke MySQL
 - Log history temperatur & kelembapan
 - Pengaturan batas maksimal suhu (threshold)
@@ -25,6 +34,8 @@ Sistem ini dilengkapi **servo otomatis** yang membuka jendela ketika suhu melebi
 - `POST /public/update-data` → menerima data dari mikrokontroler
 - `GET /public/get-data` → mengambil data terbaru (untuk frontend)
 - `GET /public/get-logs` → mengambil data logs dari mikrokontroler
+- `GET /public/devices/status` → mengambil dan mengirim data status ke perangkat IoT
+- `GET /public/check-read-request` → memeriksa data status ke perangkat IoT
 
 ---
 
@@ -35,6 +46,7 @@ Sistem ini dilengkapi **servo otomatis** yang membuka jendela ketika suhu melebi
 - Grafik perubahan data
 - Auto-refresh data
 - Tombol update logs (mengambil logs secara manual)
+- Tombol on/off perangkat elektronik (wireless control)
 - UI responsive & ringan
 
 ---
@@ -44,6 +56,7 @@ Sistem ini dilengkapi **servo otomatis** yang membuka jendela ketika suhu melebi
 - Sensor **DHT22**
 - ESP8266 / ESP32
 - Servo motor (SG90)
+- LED Indicator
 - Mekanisme jendela otomatis
 - Pengiriman data via HTTP POST
 
@@ -56,6 +69,7 @@ Sistem ini dilengkapi **servo otomatis** yang membuka jendela ketika suhu melebi
 │
 ├── app/
 │ ├── Http/
+│ │ ├── Controllers/
 │ ├── Models/
 │ └── ...
 │
@@ -65,7 +79,7 @@ Sistem ini dilengkapi **servo otomatis** yang membuka jendela ketika suhu melebi
 ├── public/
 ├── database/
 ├── routes/
-│ └── api.php
+│ └── web.php
 │
 └── ...
 ```
@@ -167,6 +181,37 @@ Mengambil data sensor terbaru untuk dashboard.
 }
 ```
 
+### Endpoint Kontrol Perangkat
+
+#### **POST /api/device/toggle/{id}**
+
+Digunakan oleh frontend (UI).
+
+**Request Body:**
+
+```json
+{
+    "status": "ON"
+}
+```
+
+atau
+
+```json
+{
+    "status": "OFF"
+}
+```
+
+**Response:**
+
+```json
+{
+    "message": "Device status updated",
+    "device_status": "OFF"
+}
+```
+
 ---
 
 # 🟧 Frontend (Blade)
@@ -246,14 +291,27 @@ void loop() {
 
 ---
 
+## 🔁 Pemisahan Jalur Kontrol Sistem
+
+| Komponen  | Dikontrol Oleh | Keterangan |
+| --------- | -------------- | ---------- |
+| Servo     | Logika suhu    | Otomatis   |
+| LED       | UI Button      | Manual     |
+| Sensor    | ESP            | Realtime   |
+| Dashboard | API            | Monitoring |
+
+---
+
 # 📐 Arsitektur Sistem
 
 ```
 [DHT22] → [ESP8266/ESP32] → [Laravel Backend + MySQL]
                          ↓
-                [Servo Otomatis] ← suhu melebihi batas
+                 [Servo Otomatis] ← suhu melebihi batas
                          ↓
               [Dashboard Laravel Blade]
+                         ↓
+                   [LED Menyala] ← ketika status on
 ```
 
 ---
