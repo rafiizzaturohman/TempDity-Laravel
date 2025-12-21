@@ -180,9 +180,7 @@ Mengambil data sensor terbaru untuk dashboard.
 }
 ```
 
-### Endpoint Kontrol Perangkat
-
-#### **POST /api/device/toggle/{id}**
+### **POST /api/device/toggle/{id}**
 
 Digunakan oleh frontend (UI).
 
