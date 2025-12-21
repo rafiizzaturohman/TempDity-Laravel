@@ -35,7 +35,6 @@ Selain **servo otomatis dan manual log** ada tambahan fitur yang mana fitur ini 
 - `GET /public/get-data` → mengambil data terbaru (untuk frontend)
 - `GET /public/get-logs` → mengambil data logs dari mikrokontroler
 - `GET /public/devices/status` → mengambil dan mengirim data status ke perangkat IoT
-- `GET /public/check-read-request` → memeriksa data status ke perangkat IoT
 
 ---
 
