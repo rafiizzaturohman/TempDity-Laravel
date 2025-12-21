@@ -123,7 +123,6 @@ class Dht22Controller extends Controller
         ]);
     }
 
-
     private function getStatusBadge($status)
     {
         switch($status) {
