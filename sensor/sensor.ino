@@ -11,11 +11,11 @@ LiquidCrystal_I2C lcd(0x27, 20, 4);
 Servo servo;
 
 // KONFIGURASI WIFI
-const char* ssid = "smpqinthara";
-const char* password = "100%qinthara";
+// const char* ssid = "smpqinthara";
+// const char* password = "100%qinthara";
 
-// const char* ssid = "SIB BLOK E3 NO 14";
-// const char* password = "3783140504Okay";
+const char* ssid = "SIB BLOK E3 NO 14";
+const char* password = "3783140504Okay";
 
 // const char* ssid = "vivo Y21";
 // const char* password = "123456788";
@@ -160,7 +160,7 @@ void fetchDeviceStatus() {
   WiFiClient client;
   HTTPClient http;
 
-  String url = "http://192.168.18.216/TempDity-Laravel/public/devices/status";
+  String url = "http://192.168.1.8/TempDity-Laravel/public/devices/status";
   http.begin(client, url);
 
   int httpCode = http.GET();
@@ -259,7 +259,7 @@ void dataSend() {
       WiFiClient client;
       HTTPClient http1;
 
-      String url = "http://192.168.18.216/TempDity-Laravel/public/update-data/";
+      String url = "http://192.168.1.8/TempDity-Laravel/public/update-data/";
       url += String(temperature, 1) + "/" + String(humidity, 1);
 
       // -----------------------------
@@ -352,7 +352,7 @@ void checkLEDRequest() {
         WiFiClient client;
         HTTPClient http;
         
-        String url = "http://192.168.18.216/TempDity-Laravel/public/check-read-request";
+        String url = "http://192.168.1.8/TempDity-Laravel/public/check-read-request";
         
         http.begin(client, url);
         int httpCode = http.GET();
@@ -407,7 +407,7 @@ void checkReadRequest() {
         WiFiClient client;
         HTTPClient http;
         
-        String url = "http://192.168.18.216/TempDity-Laravel/public/check-read-request";
+        String url = "http://192.168.1.8/TempDity-Laravel/public/check-read-request";
         
         http.begin(client, url);
         int httpCode = http.GET();
@@ -487,7 +487,7 @@ bool sendSensorDataManual() {
         WiFiClient client;
         HTTPClient http1;
 
-        String url = "http://192.168.18.216/TempDity-Laravel/public/update-data/";
+        String url = "http://192.168.1.8/TempDity-Laravel/public/update-data/";
         url += String(temperature, 1) + "/" + String(humidity, 1);
 
         http1.begin(client, url);
