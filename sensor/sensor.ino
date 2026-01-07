@@ -14,14 +14,14 @@ Servo servo;
 // const char* ssid = "smpqinthara";
 // const char* password = "100%qinthara";
 
-const char* ssid = "SIB BLOK E3 NO 14";
-const char* password = "3783140504Okay";
+// const char* ssid = "SIB BLOK E3 NO 14";
+// const char* password = "3783140504Okay";
 
 // const char* ssid = "vivo Y21";
 // const char* password = "123456788";
 
-// const char* ssid = "Hotspot";
-// const char* password = "1234567890";
+const char* ssid = "Hotspot";
+const char* password = "1234567890";
 
 // const char* ssid = "izzat";
 // const char* password = "satuduadelapan";
