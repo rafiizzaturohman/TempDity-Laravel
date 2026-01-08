@@ -38,7 +38,9 @@
     </head>
 
     <body class="bg-linear-to-br from-gray-800 via-gray-900 to-black h-max">
-        <div class="text-white max-h-screen flex flex-col">
+        <div
+            class="max-w-7xl w-auto mx-auto text-white max-h-screen flex flex-col"
+        >
             <!-- Header -->
             <header
                 class="bg-white/10 backdrop-blur-md shadow-md py-4 text-center border-b border-white/10"
