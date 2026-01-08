@@ -38,9 +38,7 @@
     </head>
 
     <body class="bg-linear-to-br from-gray-800 via-gray-900 to-black h-max">
-        <div
-            class="max-w-7xl w-auto mx-auto text-white max-h-screen flex flex-col"
-        >
+        <div class="text-white max-h-screen flex flex-col">
             <!-- Header -->
             <header
                 class="bg-white/10 backdrop-blur-md shadow-md py-4 text-center border-b border-white/10"
@@ -357,7 +355,7 @@
                             type="button"
                             onclick="toggleDevice({{ $device->id }})"
                             id="device-{{ $device->id }}"
-                            class="w-full flex flex-col items-center gap-2 px-3 py-4 md:px-4 md:py-5 rounded-xl transition-all duration-300 hover:bg-white/10 active:scale-95 {{ $device->status ? 'text-green-400' : 'text-red-400' }}"
+                            class="w-full flex flex-col items-center gap-2 px-3 py-4 md:px-4 md:py-5 rounded-xl transition-all duration-300 hover:bg-white/10 active:scale-95 {{ $device->status ? 'text-green-400' : 'text-red-400' }} cursor-pointer"
                         >
                             <div
                                 class="flex flex-col justify-center items-center gap-2"
