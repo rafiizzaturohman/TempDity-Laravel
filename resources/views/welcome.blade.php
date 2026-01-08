@@ -417,7 +417,7 @@
                     class="text-2xl text-center font-semibold tracking-wide text-gray-300 mb-6 flex items-center justify-center gap-2"
                 >
                     <i class="bi bi-play-circle text-4xl text-green-400"></i>
-                    Manual
+                    Manual Log
                     <i class="bi bi-sensor text-4xl text-green-400"></i>
                 </h2>
 
