@@ -26,7 +26,7 @@ class DeviceController extends Controller
             'status'=>$device->status,
         ]);
     }
-    
+
     public function deviceStatus()
     {
         return response()->json(Device::select('id', 'status')->get());
