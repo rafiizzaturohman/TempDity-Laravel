@@ -318,128 +318,81 @@
                     Smart Home Control
                 </h2>
 
-                <div class="space-y-3 grid grid-cols-5">
-                    @foreach ($devices as $device)
-                        @csrf
+                <div
+                    class="grid gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+                >
+                    @php
+                        $deviceMap = [
+                            'lampu1' => [
+                                'label' => 'Air Conditioner',
+                                'type' => 'toggle',
+                            ],
+                            'lampu2' => [
+                                'label' => 'Television',
+                                'type' => 'toggle',
+                            ],
+                            'lampu3' => [
+                                'label' => 'Outdoor Lighting',
+                                'type' => 'toggle',
+                            ],
+                            'lampu4' => [
+                                'label' => 'Open the Curtain',
+                                'type' => 'open-close',
+                            ],
+                            'lampu5' => [
+                                'label' => 'Open the Garage',
+                                'type' => 'open-close',
+                            ],
+                        ];
+                    @endphp
+
+                    @forelse ($devices as $device)
+                        @php
+                            $config = $deviceMap[$device->name] ?? null;
+                        @endphp
+
                         <button
-                            type="submit"
+                            type="button"
                             onclick="toggleDevice({{ $device->id }})"
                             id="device-{{ $device->id }}"
-                            class="w-full flex flex-col items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 hover:bg-white/10 {{ $device->status ? 'text-green-400' : 'text-red-400' }} cursor-pointer"
+                            class="w-full flex flex-col items-center gap-2 px-3 py-4 md:px-4 md:py-5 rounded-xl transition-all duration-300 hover:bg-white/10 active:scale-95 {{ $device->status ? 'text-green-400' : 'text-red-400' }}"
                         >
                             <div
-                                class="flex flex-col justify-center items-center"
+                                class="flex flex-col justify-center items-center gap-2"
                             >
+                                {{-- ICON --}}
                                 <span
-                                    class="w-5 h-5 flex items-center justify-center"
+                                    class="w-6 h-6 flex items-center justify-center"
                                 >
-                                    @if ($device->name == 'lampu1')
-                                        {{-- Air Conditioner --}}
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            class="w-5 h-5"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                            stroke-width="1.8"
-                                        >
-                                            <path
-                                                stroke-linecap="round"
-                                                stroke-linejoin="round"
-                                                d="M3 6h18M3 10h18M6 14h12M9 18h6"
-                                            />
-                                        </svg>
-                                    @elseif ($device->name == 'lampu2')
-                                        {{-- Television --}}
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            class="w-5 h-5"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                            stroke-width="1.8"
-                                        >
-                                            <rect
-                                                x="3"
-                                                y="5"
-                                                width="18"
-                                                height="12"
-                                                rx="2"
-                                            />
-                                            <path d="M8 21h8" />
-                                        </svg>
-                                    @elseif ($device->name == 'lampu3')
-                                        {{-- Outdoor Lighting --}}
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            class="w-5 h-5"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                            stroke-width="1.8"
-                                        >
-                                            <path
-                                                d="M12 3v6M5.6 5.6l4.2 4.2M18.4 5.6l-4.2 4.2M4 12h6M14 12h6"
-                                            />
-                                            <circle cx="12" cy="12" r="3" />
-                                        </svg>
-                                    @elseif ($device->name == 'lampu4')
-                                        {{-- Curtain --}}
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            class="w-5 h-5"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                            stroke-width="1.8"
-                                        >
-                                            <path
-                                                d="M4 3v18M20 3v18M8 3v18M16 3v18"
-                                            />
-                                        </svg>
-                                    @elseif ($device->name == 'lampu5')
-                                        {{-- Garage --}}
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            class="w-5 h-5"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                            stroke-width="1.8"
-                                        >
-                                            <path d="M3 11l9-7 9 7" />
-                                            <path d="M5 10v10h14V10" />
-                                            <path d="M9 20v-6h6v6" />
-                                        </svg>
-                                    @endif
+                                    <x-device.icon :name="$device->name" />
                                 </span>
 
-                                <span class="font-medium tracking-wide">
-                                    @if ($device->name == 'lampu1')
-                                        Air Conditioner
-                                    @elseif ($device->name == 'lampu2')
-                                        Television
-                                    @elseif ($device->name == 'lampu3')
-                                        Outdoor Lighting
-                                    @elseif ($device->name == 'lampu4')
-                                        Open the Curtain
-                                    @elseif ($device->name == 'lampu5')
-                                        Open the Garage
-                                    @endif
+                                {{-- LABEL --}}
+                                <span
+                                    class="text-sm md:text-base font-medium tracking-wide text-center"
+                                >
+                                    {{ $config['label'] ?? 'Unknown Device' }}
                                 </span>
                             </div>
 
-                            <div>
-                                <span class="status-text opacity-80">
-                                    @if ($device->name == 'lampu4' || $device->name == 'lampu5')
-                                        {{ $device->status ? 'Open' : 'Close' }}
-                                    @else
-                                        {{ $device->status ? 'ON' : 'OFF' }}
-                                    @endif
-                                </span>
-                            </div>
+                            {{-- STATUS --}}
+                            <span
+                                class="status-text text-xs md:text-sm opacity-80"
+                            >
+                                @if ($config && $config['type'] === 'open-close')
+                                    {{ $device->status ? 'Open' : 'Close' }}
+                                @else
+                                    {{ $device->status ? 'ON' : 'OFF' }}
+                                @endif
+                            </span>
                         </button>
-                    @endforeach
+                    @empty
+                        <div
+                            class="col-span-full text-center py-10 text-gray-400"
+                        >
+                            No devices found.
+                        </div>
+                    @endforelse
                 </div>
             </section>
 
@@ -766,37 +719,37 @@
                     tbody.innerHTML = logs
                         .map(
                             (log, index) => `
-                  <tr class="border-b border-gray-700/50 hover:bg-white/5 transition-colors">
-                      <td class="px-4 py-3 text-center font-medium">${(page - 1) * limit + index + 1}</td>
-                      <td class="px-4 py-3">
-                          <div class="flex items-center gap-2">
-                              <i class="bi bi-clock text-blue-400"></i>
-                              ${log.request_time}
-                          </div>
-                      </td>
-                      <td class="px-4 py-3">
-                          <div class="flex items-center gap-2">
-                              <i class="bi bi-check-circle ${log.response_time !== '--' ? 'text-green-400' : 'text-gray-500'}"></i>
-                              ${log.response_time}
-                          </div>
-                      </td>
-                      <td class="px-4 py-3 text-center">
-                          ${
-                              log.temperature !== '--'
-                                  ? `<span class="font-bold text-red-400">${log.temperature}°C</span>`
-                                  : '<span class="text-gray-500">--</span>'
-                          }
-                      </td>
-                      <td class="px-4 py-3 text-center">
-                          ${
-                              log.humidity !== '--'
-                                  ? `<span class="font-bold text-sky-400">${log.humidity}%</span>`
-                                  : '<span class="text-gray-500">--</span>'
-                          }
-                      </td>
-                      <td class="px-4 py-3 text-center">${log.status_badge}</td>
-                  </tr>
-              `,
+                            <tr class="border-b border-gray-700/50 hover:bg-white/5 transition-colors">
+                                <td class="px-4 py-3 text-center font-medium">${(page - 1) * limit + index + 1}</td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center gap-2">
+                                        <i class="bi bi-clock text-blue-400"></i>
+                                        ${log.request_time}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center gap-2">
+                                        <i class="bi bi-check-circle ${log.response_time !== '--' ? 'text-green-400' : 'text-gray-500'}"></i>
+                                        ${log.response_time}
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    ${
+                                        log.temperature !== '--'
+                                            ? `<span class="font-bold text-red-400">${log.temperature}°C</span>`
+                                            : '<span class="text-gray-500">--</span>'
+                                    }
+                                </td>
+                                <td class="px-4 py-3 text-center">
+                                    ${
+                                        log.humidity !== '--'
+                                            ? `<span class="font-bold text-sky-400">${log.humidity}%</span>`
+                                            : '<span class="text-gray-500">--</span>'
+                                    }
+                                </td>
+                                <td class="px-4 py-3 text-center">${log.status_badge}</td>
+                            </tr>
+                        `,
                         )
                         .join('')
 

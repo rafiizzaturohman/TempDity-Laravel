@@ -14,14 +14,14 @@ Servo servo;
 // const char* ssid = "smpqinthara";
 // const char* password = "100%qinthara";
 
-// const char* ssid = "SIB BLOK E3 NO 14";
-// const char* password = "3783140504Okay";
+const char* ssid = "SIB BLOK E3 NO 14";
+const char* password = "3783140504Okay";
 
 // const char* ssid = "vivo Y21";
 // const char* password = "123456788";
 
-const char* ssid = "Hotspot";
-const char* password = "1234567890";
+// const char* ssid = "Hotspot";
+// const char* password = "1234567890";
 
 // const char* ssid = "izzat";
 // const char* password = "satuduadelapan";
@@ -54,7 +54,7 @@ unsigned long lastPoll = 0;
 unsigned long pollInterval = 2000;  // Poll setiap 2 detik
 
 unsigned long lastDevicePoll = 0;
-unsigned long devicePollInterval = 2000; 
+unsigned long devicePollInterval = 1000; 
 
 // unsigned long lastBlink = 0;
 // unsigned long blinkInterval = 0;
@@ -154,13 +154,34 @@ void loop() {
   }
 }
 
+void applyDevice(uint8_t id, bool status) {
+  uint8_t pin;
+  bool activeLow = false;
+
+  switch (id) {
+    case 1: pin = LED_PIN_1; break; // D5
+    case 2: pin = LED_PIN_2; break; // D6
+    case 3: pin = LED_PIN_3; break; // D7
+    case 4: pin = LED_PIN_4; break; // D8
+    case 5: pin = LED_PIN_5; break; // D0
+    default: return;
+  }
+
+  if (activeLow) {
+    digitalWrite(pin, status ? LOW : HIGH);
+  } else {
+    digitalWrite(pin, status ? HIGH : LOW);
+  }
+}
+
+
 void fetchDeviceStatus() {
   if (WiFi.status() != WL_CONNECTED) return;
 
   WiFiClient client;
   HTTPClient http;
 
-  String url = "http://192.168.1.8/TempDity-Laravel/public/devices/status";
+  String url = "http://192.168.1.7/TempDity-Laravel/public/devices/status";
   http.begin(client, url);
 
   int httpCode = http.GET();
@@ -187,30 +208,6 @@ void fetchDeviceStatus() {
   }
 
   http.end();
-}
-
-void applyDevice(uint8_t id, bool status) {
-  switch (id) {
-    case 1:
-      digitalWrite(LED_PIN_1, status);
-      break;
-
-    case 2:
-      digitalWrite(LED_PIN_2, status);
-      break;
-
-    case 3:
-      digitalWrite(LED_PIN_3, status);
-      break;
-
-    case 4:
-      digitalWrite(LED_PIN_4, status);
-      break;
-
-    case 5:
-      digitalWrite(LED_PIN_5, status);
-      break;
-  }
 }
 
 void lcdPrint() {
@@ -257,23 +254,23 @@ void serialPrint() {
 void dataSend() {
     if (WiFi.status() == WL_CONNECTED) {
       WiFiClient client;
-      HTTPClient http1;
+      HTTPClient http;
 
-      String url = "http://192.168.1.8/TempDity-Laravel/public/update-data/";
+      String url = "http://192.168.1.7/TempDity-Laravel/public/update-data/";
       url += String(temperature, 1) + "/" + String(humidity, 1);
 
       // -----------------------------
       // API 1
       // -----------------------------
-      http1.begin(client, url);
-      int httpCode1 = http1.GET();
+      http.begin(client, url);
+      int httpCode = http.GET();
 
       Serial.print("Mengirim data ke "); 
       Serial.println(url);
 
-      if (httpCode1 > 0) {
-        Serial.printf("HTTP Response Code: %d\n", httpCode1); 
-        String payload1 = http1.getString();
+      if (httpCode > 0) {
+        Serial.printf("HTTP Response Code: %d\n", httpCode); 
+        String payload1 = http.getString();
 
         StaticJsonDocument<255> doc;
         DeserializationError error = deserializeJson(doc, payload1);
@@ -288,7 +285,7 @@ void dataSend() {
         if(error){
           Serial.print("deserialization json gagal: ");
           Serial.println(error.f_str());
-          http1.end();
+          http.end();
           return;
         }
 
@@ -338,21 +335,20 @@ void dataSend() {
           digitalWrite(BUZZER_PIN, LOW);
         }
       } else {
-        Serial.printf("Gagal mengirim data ke API 1. Error: %s\n", http1.errorToString(httpCode1).c_str());
+        Serial.printf("Gagal mengirim data ke API 1. Error: %s\n", http.errorToString(httpCode).c_str());
       }
-      http1.end();
+      http.end();
 
       Serial.print("\n");
     }
 }
 
-// 
 void checkLEDRequest() {
     if (WiFi.status() == WL_CONNECTED && !isReadingSensor) {
         WiFiClient client;
         HTTPClient http;
         
-        String url = "http://192.168.1.8/TempDity-Laravel/public/check-read-request";
+        String url = "http://192.168.1.7/TempDity-Laravel/public/check-read-request";
         
         http.begin(client, url);
         int httpCode = http.GET();
@@ -407,7 +403,7 @@ void checkReadRequest() {
         WiFiClient client;
         HTTPClient http;
         
-        String url = "http://192.168.1.8/TempDity-Laravel/public/check-read-request";
+        String url = "http://192.168.1.7/TempDity-Laravel/public/check-read-request";
         
         http.begin(client, url);
         int httpCode = http.GET();
@@ -485,20 +481,20 @@ bool readDHT22Immediately() {
 bool sendSensorDataManual() {
     if (WiFi.status() == WL_CONNECTED) {
         WiFiClient client;
-        HTTPClient http1;
+        HTTPClient http;
 
-        String url = "http://192.168.1.8/TempDity-Laravel/public/update-data/";
+        String url = "http://192.168.1.7/TempDity-Laravel/public/update-data/";
         url += String(temperature, 1) + "/" + String(humidity, 1);
 
-        http1.begin(client, url);
-        int httpCode1 = http1.GET();
+        http.begin(client, url);
+        int httpCode = http.GET();
 
         Serial.print("Mengirim data manual ke "); 
         Serial.println(url);
 
-        if (httpCode1 > 0) {
-            Serial.printf("HTTP Response Code: %d\n", httpCode1); 
-            String payload1 = http1.getString();
+        if (httpCode > 0) {
+            Serial.printf("HTTP Response Code: %d\n", httpCode); 
+            String payload1 = http.getString();
 
             StaticJsonDocument<255> doc;
             DeserializationError error = deserializeJson(doc, payload1);
@@ -507,11 +503,11 @@ bool sendSensorDataManual() {
             Serial.print("Response: "); 
             Serial.println(message);
             
-            http1.end();
+            http.end();
             return true;
         } else {
-            Serial.printf("Gagal mengirim data manual. Error: %s\n", http1.errorToString(httpCode1).c_str());
-            http1.end();
+            Serial.printf("Gagal mengirim data manual. Error: %s\n", http.errorToString(httpCode).c_str());
+            http.end();
             return false;
         }
     }
