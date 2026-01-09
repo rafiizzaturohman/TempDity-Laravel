@@ -56,12 +56,6 @@ unsigned long pollInterval = 2000;  // Poll setiap 2 detik
 unsigned long lastDevicePoll = 0;
 unsigned long devicePollInterval = 1000; 
 
-// unsigned long lastBlink = 0;
-// unsigned long blinkInterval = 0;
-
-// unsigned long lastBlink2 = 0;
-// unsigned long blinkInterval2 = 0;
-
 unsigned long lastBeep = 0;
 unsigned long beepInterval = 0;
 
@@ -102,25 +96,11 @@ void setup() {
   pinMode(BUZZER_PIN, OUTPUT);
   servo.attach(SERVO_PIN);
 
-  // digitalWrite(LED_PROCESS_PIN, LOW);
-
   dht.begin();
 }
 
 void loop() {
   unsigned long now = millis();
-
-  // if (blinkInterval > 0 && (now - lastBlink >= blinkInterval)) {
-  //   lastBlink = now;
-  //   ledState = !ledState;
-  //   digitalWrite(LED_PIN_1, ledState);
-  // }
-
-  // if (blinkInterval2 > 0 && (now - lastBlink2 >= blinkInterval2)) {
-  //   lastBlink2 = now;
-  //   ledState2 = !ledState2;
-  //   digitalWrite(LED_PIN_2, ledState2);
-  // }
 
   if (beepInterval > 0 && (now - lastBeep >= beepInterval)) {
     lastBeep = now;
@@ -258,9 +238,6 @@ void dataSend() {
       String url = "http://192.168.1.7/TempDity-Laravel/public/update-data/";
       url += String(temperature, 1) + "/" + String(humidity, 1);
 
-      // -----------------------------
-      // API 1
-      // -----------------------------
       http.begin(client, url);
       int httpCode = http.GET();
 
@@ -310,27 +287,19 @@ void dataSend() {
         }
 
         if (tempVal > maxTempVal) {
-        // blinkInterval = 150;
         beepInterval = 150;
         } else if (tempVal < minTempVal) {
-        // blinkInterval = 300;
         beepInterval = 300;
         } else {
-        // blinkInterval = 0;
         beepInterval = 0;
-        // digitalWrite(LED_PIN_1, LOW);
         digitalWrite(BUZZER_PIN, LOW);
         }
 
         if (humVal > maxHumVal) {
-          // blinkInterval2 = 150;
           beepInterval = 150;
         } else if (humVal < minHumVal) {
-          // blinkInterval2 = 300;
           beepInterval = 300;
         } else {
-          // blinkInterval2 = 0;
-          // digitalWrite(LED_PIN_2, LOW);
           digitalWrite(BUZZER_PIN, LOW);
         }
       } else {
@@ -363,7 +332,6 @@ void checkLEDRequest() {
                 
                 if (readRequest) {
                     isReadingSensor = true;
-                    // digitalWrite(LED_PROCESS_PIN, HIGH);
                     Serial.println("🟡 READ REQUEST: Memulai pembacaan sensor manual...");
                     
                     if(readDHT22Immediately()) {
@@ -378,7 +346,6 @@ void checkLEDRequest() {
                         Serial.println("❌ READ REQUEST: Gagal membaca sensor");
                     }
                     
-                    // digitalWrite(LED_PROCESS_PIN, LOW);
                     isReadingSensor = false;
                     Serial.println("🔵 READ REQUEST: Proses selesai");
                 }
@@ -418,7 +385,6 @@ void checkReadRequest() {
                 
                 if (readRequest) {
                     isReadingSensor = true;
-                    // digitalWrite(LED_PROCESS_PIN, HIGH);
                     Serial.println("🟡 READ REQUEST: Memulai pembacaan sensor manual...");
                     
                     if(readDHT22Immediately()) {
@@ -433,7 +399,6 @@ void checkReadRequest() {
                         Serial.println("❌ READ REQUEST: Gagal membaca sensor");
                     }
                     
-                    // digitalWrite(LED_PROCESS_PIN, LOW);
                     isReadingSensor = false;
                     Serial.println("🔵 READ REQUEST: Proses selesai");
                 }
