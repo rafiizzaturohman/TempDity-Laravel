@@ -174,7 +174,6 @@ void applyDevice(uint8_t id, bool status) {
   }
 }
 
-
 void fetchDeviceStatus() {
   if (WiFi.status() != WL_CONNECTED) return;
 
